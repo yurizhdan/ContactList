@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contacts search</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.0/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<div id='content'></div>
+
+<script type="text/babel">
+
+    var CONTACTS = [
+        {
+            id: 1,
+            name: 'Darth Vader',
+            phoneNumber: '+250966666666',
+            address: 'Lviv',
+            image: 'img/darth.gif'
+        }, {
+            id: 2,
+            name: 'Princess Leia',
+            phoneNumber: '+250966344466',
+            address: 'Kyiv',
+            image: 'img/leia.gif'
+        }, {
+            id: 3,
+            name: 'Luke Skywalker',
+            phoneNumber: '+250976654433',
+            address: 'Ternopil',
+            image: 'img/luke.gif'
+        }, {
+            id: 4,
+            name: 'Chewbacca',
+            phoneNumber: '+250456784935',
+            address: 'Odesa',
+            image: 'img/chewbacca.gif'
+        }
+    ];
+
+    var Contact = React.createClass({
+        deleteIt: function(e) {
+            console.log('DELETED');
+            this.props.delete(e.target.id);
+        },
+        render: function() {
+            console.log(this.props);
+            return (
+                <li className="contact">
+                    <img className="contact-image" src={this.props.image} width="60px" height="60px" />
+                    <div className="contact-info">
+                        <div className="contact-name"> {this.props.name} </div>
+                        <div className="contact-number"> {this.props.phoneNumber} </div>
+                        <div className="contact-address"> {this.props.address} </div>
+                    </div>
+                    <button type="button" id={this.props.id} className="delete-btn" onClick={this.deleteIt}>Delete</button>
+                </li>
+            );
+        }
+    });
+
+
+
+
+    var ContactsList = React.createClass({
+        getInitialState: function() {
+            return {
+                displayedContacts: CONTACTS,
+                newContact: '',
+                name: '',
+                phoneNumber: '',
+                address: ''
+            };
+        },
+
+        handleAdd: function ( e ) {
+            e.preventDefault();
+            let newContact = {};
+            console.log(this.state);
+            newContact.name = this.state.name;
+            newContact.phoneNumber = this.state.phoneNumber;
+            newContact.address = this.state.address;
+            newContact.image =  'img/chewbacca.gif';
+            newContact.id = Math.random();
+            let contacts = this.state.displayedContacts;
+            contacts.push( newContact );
+            console.log(contacts);
+            this.setState({ contacts: contacts})
+        },
+
+        setNewContact: function (e) {
+
+            let newContact = {
+                id: this.state.displayedContacts.length++,
+                name: e.target.value,
+                phoneNumber: '1234567890',
+                address: 'New York',
+                image: 'img/chewbacca.gif',
+            }
+
+            this.setState({
+                newContact: newContact
+            });
+        },
+
+        onChangeInputField: function( e ) {
+            let name = e.target.name;
+            let st = {};
+            st[name] = e.target.value;
+            this.setState(st);
+        },
+
+        handleSearch: function(event) {
+            var searchQuery = event.target.value.toLowerCase();
+            var displayedContacts = this.state.displayedContacts.filter(function(el) {
+                return el.name.toLowerCase().indexOf(searchQuery) !== -1;
+            });
+
+            this.setState({
+                displayedContacts: displayedContacts
+            });
+        },
+
+        handleDelete: function(e) {
+            console.log('HERE');
+            console.log(e);
+            let contacts = this.state.displayedContacts;
+            contacts = contacts.filter(c => c.id.toString() !== e);
+            this.setState({
+                displayedContacts: contacts
+            })
+        },
+
+        render: function() {
+            console.log(this.state)
+            return (
+                <div className="contacts">
+                    <form id="form">
+                        <input type="text" name="name" placeholder="Add name..." className="search-field" onChange={this.onChangeInputField} />
+                        <input type="text" name="phoneNumber" placeholder="Add phoneNumber..." className="search-field" onChange={this.onChangeInputField} />
+                        <input type="text" name="address" placeholder="Add address..." className="search-field" onChange={this.onChangeInputField} />
+                    </form>
+
+                    <a href="#" onClick={this.handleAdd}>Add new</a>
+                    <input type="text" placeholder="Search..." className="search-field" onChange={this.handleSearch} />
+                    <ul className="contacts-list">
+                        {
+                            this.state.displayedContacts.map((el) => {
+                                return <Contact
+                                    id={el.id}
+                                    name={el.name}
+                                    phoneNumber={el.phoneNumber}
+                                    address={el.address}
+                                    image={el.image}
+                                    delete={this.handleDelete}
+                                />;
+
+                            })
+
+                        }
+
+
+                    </ul>
+                </div>
+            );
+        }
+    });
+
+    ReactDOM.render(
+        <ContactsList />,
+        document.getElementById("content")
+    );
+
+</script>
+</body>
+</html>
